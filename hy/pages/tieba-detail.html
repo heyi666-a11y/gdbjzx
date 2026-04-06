@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>帖子详情 - 广东北江中学校园网</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border-color: #f0f0f0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.06);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            background: var(--bg-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 480px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: all 0.15s ease-out;
+        }
+
+        .back-btn:active {
+            transform: scale(0.96);
+        }
+
+        .page-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .placeholder {
+            width: 36px;
+        }
+
+        .main {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .page-content {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .post-card {
+            background: var(--bg-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .post-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .post-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .post-author {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .vip-badge {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #78350f;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .post-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .post-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .post-content {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .post-footer {
+            display: flex;
+            gap: 32px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            user-select: none;
+            cursor: pointer;
+            transition: all 0.15s ease-out;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+            transition: all 0.15s ease-out;
+        }
+
+        .post-action.liked {
+            color: #ef4444;
+        }
+
+        .post-action .action-icon {
+            font-size: 20px;
+        }
+
+        .comments-section {
+            background: var(--bg-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .comments-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .comments-count {
+            color: #667eea;
+        }
+
+        .comments-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .comment-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            animation: slideIn 0.3s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .comment-author {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .comment-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-left: auto;
+        }
+
+        .comment-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            padding-left: 42px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .empty-comments {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .empty-text {
+            font-size: 14px;
+        }
+
+        .comment-input-area {
+            position: fixed;
+            bottom: 60px;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            border-top: 1px solid var(--border-color);
+            padding: 12px 16px;
+            z-index: 100;
+        }
+
+        .comment-input-wrapper {
+            max-width: 480px;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 24px;
+            font-size: 15px;
+            resize: none;
+            max-height: 100px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            background: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--gradient);
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease-out;
+            flex-shrink: 0;
+        }
+
+        .send-btn:active {
+            transform: scale(0.96);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #999;
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.2s ease;
+            padding: 4px 8px;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .error-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .error-text {
+            font-size: 15px;
+            margin-bottom: 16px;
+        }
+
+        .retry-btn {
+            padding: 10px 24px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.15s ease-out;
+        }
+
+        .retry-btn:active {
+            transform: scale(0.96);
+        }
+
+        @media (min-width: 481px) {
+            body {
+                background: #f5f5f5;
+            }
+            .bottom-nav {
+                left: 50%;
+                transform: translateX(-50%);
+                width: 480px;
+                border-radius: 16px 16px 0 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <button class="back-btn" onclick="history.back()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="page-title">帖子详情</h1>
+            <div class="placeholder"></div>
+        </div>
+    </header>
+
+    <main class="main" id="mainContent">
+        <div class="loading">
+            <div class="spinner"></div>
+        </div>
+    </main>
+
+    <div class="comment-input-area">
+        <div class="comment-input-wrapper">
+            <textarea class="comment-input" id="commentInput" placeholder="写下你的评论..." rows="1"></textarea>
+            <button class="send-btn btn" id="sendBtn" onclick="submitComment()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>首页</span></a>
+        <a href="tieba.html" class="nav-item active"><i class="fas fa-comments"></i><span>论坛</span></a>
+        <a href="channels.html" class="nav-item"><i class="fas fa-broadcast-tower"></i><span>频道</span></a>
+        <a href="messages.html" class="nav-item"><i class="fas fa-envelope"></i><span>消息</span></a>
+        <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>我的</span></a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://verskaemxqoukhnlwnbq.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_gtr_WIuZKiChZwJz8mR6pw_mk_SAYlG';
+
+        let supabaseClient = null;
+        if (window.supabase && window.supabase.createClient) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+
+        let currentUser = null;
+        let currentPost = null;
+        let comments = [];
+        let postId = null;
+
+        function showToast(message, type = 'info') {
+            let toast = document.getElementById('toastContainer');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toastContainer';
+                toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none;';
+                document.body.appendChild(toast);
+            }
+            const toastItem = document.createElement('div');
+            const colors = { error: '#ef4444', success: '#10b981', info: '#667eea', warning: '#f59e0b' };
+            toastItem.style.cssText = `background:${colors[type]};color:white;padding:12px 24px;border-radius:8px;font-size:14px;margin-bottom:8px;animation:slideIn 0.3s ease;`;
+            toastItem.textContent = message;
+            toast.appendChild(toastItem);
+            setTimeout(() => { toastItem.style.opacity = '0'; setTimeout(() => toastItem.remove(), 300); }, 3000);
+        }
+
+        function checkAuth() {
+            const user = localStorage.getItem('currentUser') || localStorage.getItem('user');
+            if (!user) {
+                window.location.href = 'index.html';
+                return null;
+            }
+            return JSON.parse(user);
+        }
+
+        function getPostIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatTime(time) {
+            if (!time) return '';
+            const date = new Date(time);
+            const now = new Date();
+            const diff = now - date;
+
+            if (diff < 60000) return '刚刚';
+            if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
+            if (diff < 604800000) return Math.floor(diff / 86400000) + '天前';
+            return date.toLocaleDateString();
+        }
+
+        function getChannelName(channel) {
+            const names = {
+                'student': '学生频道',
+                'teacher': '老师频道',
+                'comprehensive': '综合频道'
+            };
+            return names[channel] || '全部';
+        }
+
+        async function loadPost() {
+            if (!supabaseClient) {
+                showToast('数据加载失败', 'error');
+                renderError();
+                return;
+            }
+
+            try {
+                const { data: post, error } = await supabaseClient
+                    .from('posts')
+                    .select('*, profiles(name, user_type, is_vip)')
+                    .eq('id', postId)
+                    .single();
+
+                if (error) throw error;
+
+                currentPost = post;
+
+                if (currentUser && supabaseClient) {
+                    const { data: existingLike } = await supabaseClient
+                        .from('likes')
+                        .select('id')
+                        .eq('post_id', postId)
+                        .eq('user_id', currentUser.id)
+                        .single();
+                    currentPost.is_liked = !!existingLike;
+                }
+
+                renderPost();
+                loadComments();
+            } catch (err) {
+                console.error('Load post error:', err);
+                showToast('加载失败', 'error');
+                renderError();
+            }
+        }
+
+        function renderPost() {
+            const main = document.getElementById('mainContent');
+            if (!currentPost) return;
+
+            const post = currentPost;
+
+            main.innerHTML = `
+                <div class="page-content">
+                    <div class="post-card">
+                        <div class="post-header">
+                            <div class="post-avatar">${post.profiles?.name?.charAt(0) || '匿'}</div>
+                            <div class="post-info">
+                                <div class="post-author">
+                                    ${escapeHtml(post.profiles?.name || '匿名用户')}
+                                    ${post.profiles?.is_vip ? '<span class="vip-badge">VIP</span>' : ''}
+                                </div>
+                                <div class="post-meta">${formatTime(post.created_at)} · ${getChannelName(post.channel)}</div>
+                            </div>
+                        </div>
+                        <div class="post-title">${escapeHtml(post.title)}</div>
+                        <div class="post-content">${escapeHtml(post.content)}</div>
+                        <div class="post-footer">
+                            <button class="post-action btn ${post.is_liked ? 'liked' : ''}" onclick="toggleLike()">
+                                <span class="action-icon"><i class="${post.is_liked ? 'fas' : 'far'} fa-heart"></i></span>
+                                <span>${post.likes_count || 0}</span>
+                            </button>
+                            <span class="post-action">
+                                <span class="action-icon"><i class="far fa-comment"></i></span>
+                                <span>${post.comments_count || 0}</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            评论 <span class="comments-count" id="commentsCount">(${comments.length})</span>
+                        </div>
+                        <div class="comments-list" id="commentsList">
+                            ${renderComments()}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderComments() {
+            if (comments.length === 0) {
+                return `
+                    <div class="empty-comments">
+                        <div class="empty-icon">💬</div>
+                        <div class="empty-text">暂无评论，来发表第一条评论吧</div>
+                    </div>
+                `;
+            }
+
+            return comments.map((comment, index) => `
+                <div class="comment-item" style="animation-delay: ${index * 0.05}s">
+                    <div class="comment-header">
+                        <div class="comment-avatar">${comment.profiles?.name?.charAt(0) || '匿'}</div>
+                        <div class="comment-author">${escapeHtml(comment.profiles?.name || '匿名用户')}</div>
+                        <div class="comment-time">${formatTime(comment.created_at)}</div>
+                    </div>
+                    <div class="comment-content">${escapeHtml(comment.content)}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderError() {
+            const main = document.getElementById('mainContent');
+            main.innerHTML = `
+                <div class="error-state">
+                    <div class="error-icon">😕</div>
+                    <div class="error-text">加载失败，请稍后重试</div>
+                    <button class="retry-btn btn" onclick="loadPost()">重试</button>
+                </div>
+            `;
+        }
+
+        async function loadComments() {
+            if (!supabaseClient) return;
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('comments')
+                    .select('*, profiles(name)')
+                    .eq('post_id', postId)
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+
+                comments = data || [];
+                updateCommentsUI();
+            } catch (err) {
+                console.error('Load comments error:', err);
+            }
+        }
+
+        function updateCommentsUI() {
+            const commentsCount = document.getElementById('commentsCount');
+            const commentsList = document.getElementById('commentsList');
+
+            if (commentsCount) {
+                commentsCount.textContent = `(${comments.length})`;
+            }
+
+            if (commentsList) {
+                commentsList.innerHTML = renderComments();
+            }
+
+            if (currentPost) {
+                currentPost.comments_count = comments.length;
+            }
+        }
+
+        async function toggleLike() {
+            if (!currentUser) {
+                showToast('请先登录', 'warning');
+                return;
+            }
+
+            if (!currentPost || !supabaseClient) return;
+
+            try {
+                const { data: existingLike } = await supabaseClient
+                    .from('likes')
+                    .select('id')
+                    .eq('post_id', postId)
+                    .eq('user_id', currentUser.id)
+                    .single();
+
+                if (existingLike) {
+                    await supabaseClient
+                        .from('likes')
+                        .delete()
+                        .eq('id', existingLike.id);
+
+                    currentPost.likes_count = Math.max(0, (currentPost.likes_count || 0) - 1);
+                    currentPost.is_liked = false;
+
+                    await supabaseClient
+                        .from('posts')
+                        .update({ likes_count: currentPost.likes_count })
+                        .eq('id', postId);
+                } else {
+                    await supabaseClient
+                        .from('likes')
+                        .insert({
+                            post_id: postId,
+                            user_id: currentUser.id
+                        });
+
+                    currentPost.likes_count = (currentPost.likes_count || 0) + 1;
+                    currentPost.is_liked = true;
+
+                    await supabaseClient
+                        .from('posts')
+                        .update({ likes_count: currentPost.likes_count })
+                        .eq('id', postId);
+                }
+
+                updateLikeUI();
+            } catch (err) {
+                console.error('Toggle like error:', err);
+                showToast('操作失败', 'error');
+            }
+        }
+
+        function updateLikeUI() {
+            const likeBtn = document.querySelector('.post-action.btn');
+            if (likeBtn) {
+                likeBtn.classList.toggle('liked', currentPost.is_liked);
+                const icon = likeBtn.querySelector('.action-icon i');
+                if (icon) {
+                    icon.className = currentPost.is_liked ? 'fas fa-heart' : 'far fa-heart';
+                }
+                const count = likeBtn.querySelector('span:last-child');
+                if (count) {
+                    count.textContent = currentPost.likes_count || 0;
+                }
+            }
+        }
+
+        async function submitComment() {
+            if (!currentUser) {
+                showToast('请先登录', 'warning');
+                return;
+            }
+
+            const commentInput = document.getElementById('commentInput');
+            const content = commentInput.value.trim();
+
+            if (!content) {
+                showToast('请输入评论内容', 'error');
+                return;
+            }
+
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('comments')
+                    .insert({
+                        post_id: postId,
+                        author_id: currentUser.id,
+                        content: content
+                    });
+
+                if (error) throw error;
+
+                commentInput.value = '';
+                showToast('评论成功', 'success');
+
+                await Promise.all([
+                    loadComments(),
+                    updatePostCommentCount()
+                ]);
+            } catch (err) {
+                console.error('Submit comment error:', err);
+                showToast('评论失败，请稍后重试', 'error');
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        async function updatePostCommentCount() {
+            if (!currentPost || !supabaseClient) return;
+
+            try {
+                const newCount = (currentPost.comments_count || 0) + 1;
+                await supabaseClient
+                    .from('posts')
+                    .update({ comments_count: newCount })
+                    .eq('id', postId);
+            } catch (err) {
+                console.error('Update comment count error:', err);
+            }
+        }
+
+        function autoResizeTextarea() {
+            const textarea = document.getElementById('commentInput');
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+            });
+        }
+
+        currentUser = checkAuth();
+        postId = getPostIdFromUrl();
+
+        if (!postId) {
+            showToast('参数错误', 'error');
+            renderError();
+        } else {
+            loadPost();
+        }
+
+        autoResizeTextarea();
+    </script>
+</body>
+</html>

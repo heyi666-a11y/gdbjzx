@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>聊天记录监控 - 管理员</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-color);
+            min-height: 100vh;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .container {
+            padding: 16px;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-card {
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .filter-group {
+            margin-bottom: 16px;
+        }
+
+        .filter-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .recent-chats {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .chat-item {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .chat-item:hover {
+            background: #f9f9f9;
+        }
+
+        .chat-item:last-child {
+            border-bottom: none;
+        }
+
+        .chat-users {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .user-avatar.teacher {
+            background: #f59e0b;
+        }
+
+        .user-avatar.admin {
+            background: #ef4444;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .user-type {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .chat-arrow {
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .last-message {
+            font-size: 14px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            width: 95%;
+            max-width: 600px;
+            max-height: 85vh;
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: #f5f5f5;
+        }
+
+        .message-item {
+            margin-bottom: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .message-sender {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .message-content {
+            font-size: 14px;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+
+        .message-image {
+            max-width: 200px;
+            border-radius: 8px;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 9999;
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translate(-50%, -20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .loading i {
+            font-size: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="header-title">聊天记录监控</div>
+    </div>
+
+    <div class="container">
+        <div class="section-title">
+            <i class="fas fa-filter" style="color: var(--primary);"></i>
+            选择用户查看聊天记录
+        </div>
+
+        <div class="filter-card">
+            <div class="filter-group">
+                <label class="filter-label">用户1</label>
+                <select class="filter-select" id="user1Select">
+                    <option value="">请选择用户</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">用户2</label>
+                <select class="filter-select" id="user2Select">
+                    <option value="">请选择用户</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="viewChat()">
+                <i class="fas fa-search"></i> 查看聊天记录
+            </button>
+        </div>
+
+        <div class="section-title">
+            <i class="fas fa-history" style="color: var(--primary);"></i>
+            最近活跃的聊天
+        </div>
+        <div class="recent-chats" id="recentChats">
+            <div class="loading">
+                <i class="fas fa-spinner"></i>
+                <p>加载中...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="chatModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">聊天记录</div>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>加载中...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://verskaemxqoukhnlwnbq.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_gtr_WIuZKiChZwJz8mR6pw_mk_SAYlG';
+        let supabaseClient = null;
+        let currentUser = null;
+        let allUsers = [];
+
+        if (window.supabase && window.supabase.createClient) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+
+        function checkAuth() {
+            const user = localStorage.getItem('currentUser') || localStorage.getItem('user');
+            if (!user) {
+                window.location.href = 'index.html';
+                return null;
+            }
+            const userData = JSON.parse(user);
+            if (userData.user_type !== 'admin') {
+                showToast('只有管理员可以访问此页面');
+                setTimeout(() => {
+                    window.location.href = 'home.html';
+                }, 1500);
+                return null;
+            }
+            return userData;
+        }
+
+        async function init() {
+            currentUser = checkAuth();
+            if (!currentUser) return;
+
+            await loadUsers();
+            await loadRecentChats();
+            
+            // 检查 URL 参数，如果有则自动加载聊天记录
+            const urlParams = new URLSearchParams(window.location.search);
+            const user1Id = urlParams.get('user1');
+            const user2Id = urlParams.get('user2');
+            
+            if (user1Id && user2Id) {
+                // 设置选择器的值
+                document.getElementById('user1Select').value = user1Id;
+                document.getElementById('user2Select').value = user2Id;
+                // 自动加载聊天记录
+                await viewChatByUsers(user1Id, user2Id);
+            }
+        }
+
+        async function loadUsers() {
+            if (!supabaseClient) return;
+
+            try {
+                const { data: users, error } = await supabaseClient
+                    .from('profiles')
+                    .select('id, name, user_type')
+                    .order('name');
+
+                if (error) throw error;
+
+                allUsers = users || [];
+                populateSelects();
+            } catch (err) {
+                console.error('加载用户失败:', err);
+                showToast('加载用户列表失败');
+            }
+        }
+
+        function populateSelects() {
+            const user1Select = document.getElementById('user1Select');
+            const user2Select = document.getElementById('user2Select');
+
+            allUsers.forEach(user => {
+                const option1 = new Option(`${user.name} (${user.user_type})`, user.id);
+                const option2 = new Option(`${user.name} (${user.user_type})`, user.id);
+                user1Select.add(option1);
+                user2Select.add(option2);
+            });
+        }
+
+        async function loadRecentChats() {
+            if (!supabaseClient) return;
+
+            try {
+                // 获取最近有消息往来的用户配对
+                const { data: messages, error } = await supabaseClient
+                    .from('messages')
+                    .select('sender_id, receiver_id, content, created_at, sender:profiles!sender_id(name, user_type), receiver:profiles!receiver_id(name, user_type)')
+                    .order('created_at', { ascending: false })
+                    .limit(100);
+
+                if (error) throw error;
+
+                const chatPairs = new Map();
+                
+                if (messages) {
+                    messages.forEach(msg => {
+                        const pairKey = [msg.sender_id, msg.receiver_id].sort().join('-');
+                        if (!chatPairs.has(pairKey)) {
+                            chatPairs.set(pairKey, {
+                                user1: msg.sender,
+                                user2: msg.receiver,
+                                user1Id: msg.sender_id,
+                                user2Id: msg.receiver_id,
+                                lastMessage: msg.content,
+                                lastTime: msg.created_at
+                            });
+                        }
+                    });
+                }
+
+                displayRecentChats(Array.from(chatPairs.values()));
+            } catch (err) {
+                console.error('加载最近聊天失败:', err);
+                document.getElementById('recentChats').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle empty-icon"></i>
+                        <p>加载失败</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayRecentChats(chats) {
+            const container = document.getElementById('recentChats');
+            
+            if (chats.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-comments empty-icon"></i>
+                        <p>暂无聊天记录</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = chats.slice(0, 10).map(chat => `
+                <div class="chat-item" onclick="viewChatByUsers('${chat.user1Id}', '${chat.user2Id}')">
+                    <div class="chat-users">
+                        <div class="user-avatar ${chat.user1?.user_type}">${(chat.user1?.name || '?').charAt(0)}</div>
+                        <div class="user-info">
+                            <div class="user-name">${chat.user1?.name || '未知用户'}</div>
+                            <div class="user-type">${chat.user1?.user_type || '未知'}</div>
+                        </div>
+                        <i class="fas fa-exchange-alt chat-arrow"></i>
+                        <div class="user-avatar ${chat.user2?.user_type}">${(chat.user2?.name || '?').charAt(0)}</div>
+                        <div class="user-info">
+                            <div class="user-name">${chat.user2?.name || '未知用户'}</div>
+                            <div class="user-type">${chat.user2?.user_type || '未知'}</div>
+                        </div>
+                    </div>
+                    <div class="last-message">${chat.lastMessage || '暂无消息'}</div>
+                    <div class="message-time">${new Date(chat.lastTime).toLocaleString()}</div>
+                </div>
+            `).join('');
+        }
+
+        async function viewChat() {
+            const user1Id = document.getElementById('user1Select').value;
+            const user2Id = document.getElementById('user2Select').value;
+
+            if (!user1Id || !user2Id) {
+                showToast('请选择两个用户');
+                return;
+            }
+
+            if (user1Id === user2Id) {
+                showToast('不能选择同一个用户');
+                return;
+            }
+
+            await viewChatByUsers(user1Id, user2Id);
+        }
+
+        async function viewChatByUsers(user1Id, user2Id) {
+            if (!supabaseClient) return;
+
+            const user1 = allUsers.find(u => u.id === user1Id);
+            const user2 = allUsers.find(u => u.id === user2Id);
+
+            document.getElementById('modalTitle').textContent = 
+                `${user1?.name || '用户1'} 与 ${user2?.name || '用户2'} 的聊天记录`;
+            document.getElementById('chatModal').classList.add('active');
+            document.getElementById('modalBody').innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>加载中...</p>
+                </div>
+            `;
+
+            try {
+                // 获取两个用户之间的所有消息
+                const { data: messages, error } = await supabaseClient
+                    .from('messages')
+                    .select('*, sender:profiles!sender_id(name, user_type)')
+                    .or(`and(sender_id.eq.${user1Id},receiver_id.eq.${user2Id}),and(sender_id.eq.${user2Id},receiver_id.eq.${user1Id})`)
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+
+                displayMessages(messages || []);
+            } catch (err) {
+                console.error('加载聊天记录失败:', err);
+                document.getElementById('modalBody').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle empty-icon"></i>
+                        <p>加载聊天记录失败</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayMessages(messages) {
+            const modalBody = document.getElementById('modalBody');
+            
+            if (messages.length === 0) {
+                modalBody.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-comments empty-icon"></i>
+                        <p>暂无聊天记录</p>
+                    </div>
+                `;
+                return;
+            }
+
+            modalBody.innerHTML = messages.map(msg => `
+                <div class="message-item">
+                    <div class="message-header">
+                        <span class="message-sender">${msg.sender?.name || '未知用户'} (${msg.sender?.user_type || '未知'})</span>
+                        <span class="message-time">${new Date(msg.created_at).toLocaleString()}</span>
+                    </div>
+                    <div class="message-content">
+                        ${msg.message_type === 'image' 
+                            ? `<img src="${msg.content}" class="message-image" onclick="window.open('${msg.content}', '_blank')">` 
+                            : msg.content}
+                    </div>
+                </div>
+            `).join('');
+
+            // 滚动到底部
+            modalBody.scrollTop = modalBody.scrollHeight;
+        }
+
+        function closeModal() {
+            document.getElementById('chatModal').classList.remove('active');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('chatModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>

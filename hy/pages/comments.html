@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>我的评论 - 广东北江中学校园网</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --bg-secondary: #f5f5f7;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #e8e8e8;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+            max-width: 480px;
+            margin: 0 auto;
+            padding-bottom: 70px;
+        }
+
+        .header {
+            background: #ffffff;
+            padding: 15px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-inner {
+            max-width: 480px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--bg-secondary);
+        }
+
+        .back-btn:active {
+            transform: scale(0.92);
+        }
+
+        .page-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .header-placeholder {
+            width: 36px;
+        }
+
+        .page-content {
+            padding: 16px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 16px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            color: #ddd;
+        }
+
+        .empty-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .empty-sub {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .comment-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 12px;
+            animation: slideIn 0.3s ease;
+            transition: all 0.25s ease;
+        }
+
+        .comment-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .comment-card:active {
+            transform: scale(0.98);
+        }
+
+        .post-info {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .post-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .post-meta {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .comment-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 8px;
+            white-space: pre-wrap;
+        }
+
+        .comment-meta {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .comment-time {
+            flex: 1;
+        }
+
+        .view-btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .view-btn:active {
+            transform: scale(0.94);
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 480px;
+            margin: 0 auto;
+            background: #fff;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 100;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #999;
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.2s ease;
+            padding: 4px 12px;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover i {
+            transform: translateY(-2px);
+        }
+
+        .nav-item:active {
+            transform: scale(0.92);
+        }
+
+        .nav-item.active i {
+            transform: scale(1.1);
+        }
+
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .btn {
+            transition: all 0.25s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <button class="back-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="page-title">我的评论</h1>
+            <div class="header-placeholder"></div>
+        </div>
+    </header>
+
+    <div id="loadingContainer" class="loading-container">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">加载中...</div>
+    </div>
+
+    <div id="commentsContent" class="page-content hidden">
+        <div id="commentsList"></div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>首页</span></a>
+        <a href="tieba.html" class="nav-item"><i class="fas fa-comments"></i><span>论坛</span></a>
+        <a href="channels.html" class="nav-item"><i class="fas fa-broadcast-tower"></i><span>频道</span></a>
+        <a href="messages.html" class="nav-item"><i class="fas fa-envelope"></i><span>消息</span></a>
+        <a href="profile.html" class="nav-item active"><i class="fas fa-user"></i><span>我的</span></a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://verskaemxqoukhnlwnbq.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_gtr_WIuZKiChZwJz8mR6pw_mk_SAYlG';
+
+        let supabaseClient = null;
+        if (window.supabase && window.supabase.createClient) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+
+        function showToast(message, type = 'info') {
+            let toast = document.getElementById('toastContainer');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toastContainer';
+                toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none;';
+                document.body.appendChild(toast);
+            }
+            const toastItem = document.createElement('div');
+            const colors = { error: '#ef4444', success: '#10b981', info: '#667eea', warning: '#f59e0b' };
+            toastItem.style.cssText = `background:${colors[type]};color:white;padding:12px 24px;border-radius:8px;font-size:14px;margin-bottom:8px;animation:toastIn 0.3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.15);`;
+            toastItem.textContent = message;
+            toast.appendChild(toastItem);
+            setTimeout(() => { toastItem.style.opacity = '0'; setTimeout(() => toastItem.remove(), 300); }, 3000);
+        }
+
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = 'profile.html';
+            }
+        }
+
+        function viewPost(postId) {
+            window.location.href = `tieba-detail.html?id=${postId}`;
+        }
+
+        function formatTime(dateStr) {
+            if (!dateStr) return '--';
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (minutes < 1) return '刚刚';
+            if (minutes < 60) return minutes + '分钟前';
+            if (hours < 24) return hours + '小时前';
+            if (days < 7) return days + '天前';
+            return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function loadMyComments() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                const { data: comments, error } = await supabaseClient
+                    .from('comments')
+                    .select('*, posts(title, author_id, created_at, profiles(name))')
+                    .eq('author_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const commentsList = document.getElementById('commentsList');
+                if (!comments || comments.length === 0) {
+                    commentsList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon"><i class="fas fa-comment-dots"></i></div>
+                            <div class="empty-text">暂无评论</div>
+                            <div class="empty-sub">您还没有发表过评论</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                commentsList.innerHTML = comments.map((comment, index) => {
+                    const post = comment.posts;
+                    if (!post) return '';
+
+                    return `
+                        <div class="comment-card" style="animation-delay: ${index * 0.05}s">
+                            <div class="post-info">
+                                <div class="post-title">${escapeHtml(post.title)}</div>
+                                <div class="post-meta">
+                                    <span>作者: ${post.profiles?.name || '未知用户'}</span>
+                                    <span>${formatTime(post.created_at)}</span>
+                                </div>
+                            </div>
+                            <div class="comment-content">${escapeHtml(comment.content)}</div>
+                            <div class="comment-meta">
+                                <span class="comment-time">${formatTime(comment.created_at)}</span>
+                                <button class="view-btn btn" onclick="viewPost('${post.id}')">查看帖子</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error('Load comments error:', err);
+                showToast('加载失败，请刷新重试', 'error');
+                document.getElementById('commentsList').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fas fa-exclamation-circle"></i></div>
+                        <div class="empty-text">加载失败</div>
+                        <div class="empty-sub">请下拉刷新重试</div>
+                    </div>
+                `;
+            } finally {
+                document.getElementById('loadingContainer').classList.add('hidden');
+                document.getElementById('commentsContent').classList.remove('hidden');
+            }
+        }
+
+        function init() {
+            if (!supabaseClient) {
+                showToast('Supabase 初始化失败', 'error');
+                return;
+            }
+            loadMyComments();
+        }
+
+        init();
+    </script>
+</body>
+</html>

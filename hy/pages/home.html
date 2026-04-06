@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>首页 - 广东北江中学校园网</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg-color: #ffffff;
+            --bg-secondary: #f5f5f7;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #e8e8e8;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding-bottom: 70px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .header {
+            background: #fff;
+            padding: 12px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .header-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .header-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-avatar:active {
+            transform: scale(0.96);
+            transition: transform 0.1s ease;
+        }
+
+        .header-avatar i {
+            color: white;
+            font-size: 14px;
+        }
+
+        .page-content {
+            padding: 16px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .user-card {
+            background: #fff;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.25s ease;
+            animation: slideUp 0.35s ease forwards;
+        }
+
+        .user-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .user-card-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.25s ease;
+        }
+
+        .user-card:hover .user-card-avatar {
+            transform: scale(1.05);
+        }
+
+        .user-card-avatar i {
+            color: white;
+            font-size: 20px;
+        }
+
+        .user-card-info {
+            flex: 1;
+        }
+
+        .user-card-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .user-card-vip {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .user-card-vip.active {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .user-card-vip.inactive {
+            background: var(--bg-secondary);
+            color: var(--text-tertiary);
+        }
+
+        .quick-access {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .quick-item {
+            background: #fff;
+            border-radius: var(--radius-md);
+            padding: 14px 8px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.25s ease;
+            animation: slideUp 0.35s ease forwards;
+            opacity: 0;
+        }
+
+        .quick-item:nth-child(1) { animation-delay: 0.05s; }
+        .quick-item:nth-child(2) { animation-delay: 0.1s; }
+        .quick-item:nth-child(3) { animation-delay: 0.15s; }
+        .quick-item:nth-child(4) { animation-delay: 0.2s; }
+
+        .quick-item:active {
+            transform: scale(0.96);
+            transition: transform 0.1s ease;
+        }
+
+        .quick-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .quick-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 18px;
+            color: white;
+            transition: all 0.25s ease;
+        }
+
+        .quick-item:hover .quick-icon {
+            transform: scale(1.1);
+        }
+
+        .quick-icon.forum { background: var(--gradient); }
+        .quick-icon.channel { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .quick-icon.resource { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .quick-icon.message { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+
+        .quick-text {
+            font-size: 12px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .section-title i {
+            color: #667eea;
+        }
+
+        .announcement-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+            animation: slideUp 0.35s ease forwards;
+            animation-delay: 0.2s;
+            opacity: 0;
+            color: white;
+        }
+
+        .announcement-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .announcement-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .announcement-item {
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .announcement-item:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+        }
+
+        .announcement-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .announcement-time {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .posts-section {
+            background: #fff;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            animation: slideUp 0.35s ease forwards;
+            animation-delay: 0.25s;
+            opacity: 0;
+        }
+
+        .post-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            opacity: 0;
+            animation: slideUp 0.35s ease forwards;
+        }
+
+        .post-item:nth-child(1) { animation-delay: 0.3s; }
+        .post-item:nth-child(2) { animation-delay: 0.35s; }
+        .post-item:nth-child(3) { animation-delay: 0.4s; }
+        .post-item:nth-child(4) { animation-delay: 0.45s; }
+        .post-item:nth-child(5) { animation-delay: 0.5s; }
+
+        .post-item:last-child {
+            border-bottom: none;
+        }
+
+        .post-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            padding-left: 8px;
+        }
+
+        .post-item:active {
+            transform: scale(0.98);
+            transition: transform 0.1s ease;
+        }
+
+        .post-title {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            transition: color 0.2s ease;
+        }
+
+        .post-item:hover .post-title {
+            color: #667eea;
+        }
+
+        .post-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 10px;
+        }
+
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border-color);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .empty-text {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 480px;
+            margin: 0 auto;
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #999;
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.2s ease;
+            padding: 4px 8px;
+        }
+
+        .nav-item:active {
+            transform: scale(0.96);
+            transition: transform 0.1s ease;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-item.active i {
+            animation: pulse 1.5s ease infinite;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div style="width: 32px;"></div>
+        <span class="header-title">首页</span>
+        <div class="header-avatar" id="headerAvatar">
+            <i class="fas fa-user"></i>
+        </div>
+    </header>
+
+    <main class="page-content">
+        <div class="user-card" id="userCard">
+            <div class="user-card-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-card-info">
+                <div class="user-card-name" id="userName">加载中...</div>
+                <div class="user-card-vip inactive" id="vipStatus">
+                    <i class="fas fa-crown"></i>
+                    <span>普通会员</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-access">
+            <div class="quick-item" onclick="goToForum()">
+                <div class="quick-icon forum">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <span class="quick-text">论坛</span>
+            </div>
+            <div class="quick-item" onclick="goToChannel()">
+                <div class="quick-icon channel">
+                    <i class="fas fa-broadcast-tower"></i>
+                </div>
+                <span class="quick-text">频道</span>
+            </div>
+            <div class="quick-item" onclick="goToResource()">
+                <div class="quick-icon resource">
+                    <i class="fas fa-folder"></i>
+                </div>
+                <span class="quick-text">资源</span>
+            </div>
+            <div class="quick-item" onclick="goToMessage()">
+                <div class="quick-icon message">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <span class="quick-text">消息</span>
+            </div>
+        </div>
+
+        <div class="announcement-section">
+            <div class="announcement-header">
+                <i class="fas fa-bullhorn"></i>
+                <span>最新公告</span>
+            </div>
+            <div class="announcement-list" id="announcementList">
+                <div class="loading-container">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">加载中...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="posts-section">
+            <div class="section-title">
+                <i class="fas fa-clock"></i>
+                最新帖子
+            </div>
+            <div id="postsList">
+                <div class="loading-container">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">加载中...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </a>
+        <a href="tieba.html" class="nav-item">
+            <i class="fas fa-comments"></i>
+            <span>论坛</span>
+        </a>
+        <a href="channels.html" class="nav-item">
+            <i class="fas fa-broadcast-tower"></i>
+            <span>频道</span>
+        </a>
+        <a href="messages.html" class="nav-item">
+            <i class="fas fa-envelope"></i>
+            <span>消息</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </nav>
+
+    <script>
+        const SUPABASE_URL = 'https://verskaemxqoukhnlwnbq.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_gtr_WIuZKiChZwJz8mR6pw_mk_SAYlG';
+
+        let supabaseClient = null;
+        if (window.supabase && window.supabase.createClient) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+
+        function showToast(message, type = 'info') {
+            let toast = document.getElementById('toastContainer');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toastContainer';
+                toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none;';
+                document.body.appendChild(toast);
+            }
+            const toastItem = document.createElement('div');
+            const colors = { error: '#ef4444', success: '#10b981', info: '#667eea', warning: '#f59e0b' };
+            toastItem.style.cssText = `background:${colors[type]};color:white;padding:12px 24px;border-radius:8px;font-size:14px;margin-bottom:8px;animation:toastIn 0.3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.15);`;
+            toastItem.textContent = message;
+            toast.appendChild(toastItem);
+            setTimeout(() => { toastItem.style.opacity = '0'; toastItem.style.transform = 'translateY(-20px)'; setTimeout(() => toastItem.remove(), 300); }, 3000);
+        }
+
+        function goToForum() {
+            window.location.href = 'tieba.html';
+        }
+
+        function goToChannel() {
+            window.location.href = 'channels.html';
+        }
+
+        function goToResource() {
+            window.location.href = 'resources.html';
+        }
+
+        function goToMessage() {
+            window.location.href = 'messages.html';
+        }
+
+        function goToProfile() {
+            window.location.href = 'profile.html';
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (minutes < 1) return '刚刚';
+            if (minutes < 60) return minutes + '分钟前';
+            if (hours < 24) return hours + '小时前';
+            if (days < 7) return days + '天前';
+            return date.toLocaleDateString('zh-CN');
+        }
+
+        async function loadCurrentUser() {
+            try {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (!currentUser || !currentUser.id) {
+                    document.getElementById('userName').textContent = '未登录用户';
+                    return;
+                }
+
+                let profile = currentUser;
+
+                if (supabaseClient) {
+                    const { data, error } = await supabaseClient
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', currentUser.id)
+                        .single();
+
+                    if (!error && data) {
+                        profile = { ...currentUser, ...data };
+                    }
+                }
+
+                document.getElementById('userName').textContent = profile.name || profile.username || '用户';
+                document.getElementById('headerAvatar').onclick = goToProfile;
+
+                const vipStatus = document.getElementById('vipStatus');
+                if (profile.is_vip) {
+                    vipStatus.className = 'user-card-vip active';
+                    vipStatus.innerHTML = '<i class="fas fa-crown"></i><span>VIP会员</span>';
+                } else {
+                    vipStatus.className = 'user-card-vip inactive';
+                    vipStatus.innerHTML = '<i class="fas fa-crown"></i><span>普通会员</span>';
+                }
+            } catch (e) {
+                console.error('加载用户信息失败:', e);
+                document.getElementById('userName').textContent = '加载失败';
+            }
+        }
+
+        async function loadLatestPosts() {
+            const postsList = document.getElementById('postsList');
+
+            if (!supabaseClient) {
+                postsList.innerHTML = '<div class="empty-text">暂无帖子</div>';
+                return;
+            }
+
+            try {
+                const { data: posts, error } = await supabaseClient
+                    .from('posts')
+                    .select(`
+                        *,
+                        profiles (
+                            name,
+                            user_type,
+                            is_vip
+                        )
+                    `)
+                    .eq('is_deleted', false)
+                    .order('created_at', { ascending: false })
+                    .limit(5);
+
+                if (error) {
+                    console.error('获取帖子失败:', error);
+                    showToast('加载失败，请刷新重试', 'error');
+                    postsList.innerHTML = '<div class="empty-text">加载失败</div>';
+                    return;
+                }
+
+                if (!posts || posts.length === 0) {
+                    postsList.innerHTML = '<div class="empty-text">暂无帖子</div>';
+                    return;
+                }
+
+                postsList.innerHTML = posts.map(post => `
+                    <div class="post-item" onclick="goToPost(${post.id})">
+                        <div class="post-title">${post.title}</div>
+                        <div class="post-meta">
+                            <span>${post.profiles?.name || post.author_name || '匿名用户'}</span>
+                            <span>${formatTime(post.created_at)}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('加载帖子失败:', e);
+                showToast('加载失败，请刷新重试', 'error');
+                postsList.innerHTML = '<div class="empty-text">加载失败</div>';
+            }
+        }
+
+        function goToPost(postId) {
+            window.location.href = `tieba.html?post=${postId}`;
+        }
+
+        async function loadAnnouncements() {
+            const container = document.getElementById('announcementList');
+
+            if (!supabaseClient) {
+                container.innerHTML = '<div class="announcement-item"><div class="announcement-title">暂无公告</div></div>';
+                return;
+            }
+
+            try {
+                const { data: announcements, error } = await supabaseClient
+                    .from('announcements')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('is_pinned', { ascending: false })
+                    .order('created_at', { ascending: false })
+                    .limit(3);
+
+                if (error) throw error;
+
+                if (!announcements || announcements.length === 0) {
+                    container.innerHTML = '<div class="announcement-item"><div class="announcement-title">暂无公告</div></div>';
+                    return;
+                }
+
+                container.innerHTML = announcements.map(a => `
+                    <div class="announcement-item" onclick="showAnnouncementDetail('${escapeHtml(a.title)}', '${escapeHtml(a.content)}')">
+                        <div class="announcement-title">${a.is_pinned ? '<i class="fas fa-thumbtack"></i> ' : ''}${escapeHtml(a.title)}</div>
+                        <div class="announcement-time">${formatTime(a.created_at)}</div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Load announcements error:', err);
+                container.innerHTML = '<div class="announcement-item"><div class="announcement-title">加载失败</div></div>';
+            }
+        }
+
+        function showAnnouncementDetail(title, content) {
+            alert(`${title}\n\n${content}`);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentUser();
+            loadAnnouncements();
+            loadLatestPosts();
+        });
+    </script>
+</body>
+</html>

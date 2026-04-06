@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>个人中心 - 广东北江中学校园网</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --bg-secondary: #f5f5f7;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #e8e8e8;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+            max-width: 480px;
+            margin: 0 auto;
+            padding-bottom: 90px;
+        }
+
+        .header {
+            background: #ffffff;
+            padding: 15px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-inner {
+            max-width: 480px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--bg-secondary);
+        }
+
+        .back-btn:active {
+            transform: scale(0.92);
+        }
+
+        .page-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .header-placeholder {
+            width: 36px;
+        }
+
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 16px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .page-content {
+            padding: 16px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .profile-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            margin-bottom: 16px;
+            animation: slideIn 0.5s ease;
+            animation-delay: 0.1s;
+            animation-fill-mode: both;
+        }
+
+        .avatar-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--gradient);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0 auto 16px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .avatar-large:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .user-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .user-id {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 12px;
+        }
+
+        .identity-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .identity-badge.student {
+            background: #e6f0ff;
+            color: #2f7ffa;
+        }
+
+        .identity-badge.teacher {
+            background: #f0e6ff;
+            color: #8b5cf6;
+        }
+
+        .identity-badge.admin {
+            background: #fff3e6;
+            color: #ff8c00;
+        }
+
+        .vip-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.25s ease;
+            animation: slideIn 0.5s ease;
+            animation-delay: 0.2s;
+            animation-fill-mode: both;
+        }
+
+        .vip-card:active {
+            transform: scale(0.98);
+        }
+
+        .vip-card.vip-active {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(245, 158, 11, 0.08));
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .vip-icon {
+            font-size: 40px;
+            transition: all 0.3s ease;
+        }
+
+        .vip-card:hover .vip-icon {
+            transform: scale(1.1);
+        }
+
+        .vip-info {
+            flex: 1;
+        }
+
+        .vip-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .vip-title .crown {
+            color: #f59e0b;
+        }
+
+        .vip-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .vip-btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .vip-btn:active {
+            transform: scale(0.94);
+        }
+
+        .vip-btn.renew {
+            background: #f59e0b;
+        }
+
+        .stats-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 16px;
+            animation: slideIn 0.5s ease;
+            animation-delay: 0.3s;
+            animation-fill-mode: both;
+        }
+
+        .stats-grid {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-item:not(:last-child) {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .stat-number {
+            font-size: 26px;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover .stat-number {
+            transform: scale(1.1);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .menu-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 16px;
+            overflow: hidden;
+            animation: slideIn 0.5s ease;
+            animation-delay: 0.4s;
+            animation-fill-mode: both;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:hover {
+            background: #f8f8f8;
+        }
+
+        .menu-item:active {
+            background: #f0f0f0;
+            transform: scale(0.98);
+        }
+
+        .menu-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.25s ease;
+        }
+
+        .menu-item:hover .menu-icon {
+            transform: scale(1.1);
+        }
+
+        .menu-icon.posts { background: rgba(102, 126, 234, 0.1); color: #667eea; }
+        .menu-icon.favorite { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .menu-icon.notify { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .menu-icon.settings { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+        .menu-info {
+            flex: 1;
+        }
+
+        .menu-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .menu-arrow {
+            color: var(--text-secondary);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .menu-item:hover .menu-arrow {
+            transform: translateX(3px);
+            color: #667eea;
+        }
+
+        .logout-btn {
+            background: #fff;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            margin: 0 16px;
+            padding: 16px;
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+            color: #ef4444;
+            font-weight: 600;
+            font-size: 15px;
+            width: calc(100% - 32px);
+            display: block;
+            transition: all 0.25s ease;
+            animation: slideIn 0.5s ease;
+            animation-delay: 0.5s;
+            animation-fill-mode: both;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.05);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .logout-btn:active {
+            transform: scale(0.96);
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 480px;
+            margin: 0 auto;
+            background: #fff;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 100;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #999;
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.2s ease;
+            padding: 4px 12px;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover i {
+            transform: translateY(-2px);
+        }
+
+        .nav-item:active {
+            transform: scale(0.92);
+        }
+
+        .nav-item.active i {
+            transform: scale(1.1);
+        }
+
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .btn {
+            transition: all 0.25s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .card {
+            transition: all 0.25s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <button class="back-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="page-title">个人中心</h1>
+            <div class="header-placeholder"></div>
+        </div>
+    </header>
+
+    <div id="loadingContainer" class="loading-container">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">加载中...</div>
+    </div>
+
+    <div id="profileContent" class="page-content hidden">
+        <div class="profile-card card">
+            <div class="avatar-large" id="avatar">?</div>
+            <div class="user-name" id="userName">--</div>
+            <div class="identity-badge student" id="identityBadge">学生</div>
+            <div class="user-id" id="userId">学号/工号: --</div>
+        </div>
+
+        <div class="vip-card card" id="vipCard">
+            <div class="vip-icon" id="vipIcon">👑</div>
+            <div class="vip-info">
+                <div class="vip-title" id="vipTitle">
+                    <span class="crown">👑</span> 普通会员
+                </div>
+                <div class="vip-desc" id="vipDesc">开通VIP解锁更多功能</div>
+            </div>
+            <button class="vip-btn btn" id="vipBtn" onclick="handleVipAction()">开通VIP</button>
+        </div>
+
+        <div class="stats-card card">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="postCount">0</div>
+                    <div class="stat-label">发帖</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="commentCount">0</div>
+                    <div class="stat-label">评论</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="likeCount">0</div>
+                    <div class="stat-label">获赞</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-card">
+            <div class="menu-item btn" onclick="goToMyPosts()">
+                <div class="menu-icon posts"><i class="fas fa-file-alt"></i></div>
+                <div class="menu-info">
+                    <div class="menu-name">我的帖子</div>
+                </div>
+                <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="menu-item btn" onclick="goToMyComments()">
+                <div class="menu-icon favorite"><i class="fas fa-comment"></i></div>
+                <div class="menu-info">
+                    <div class="menu-name">我的评论</div>
+                </div>
+                <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="menu-item btn" onclick="goToMessages()">
+                <div class="menu-icon notify"><i class="fas fa-bell"></i></div>
+                <div class="menu-info">
+                    <div class="menu-name">消息通知</div>
+                </div>
+                <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="menu-item btn" onclick="goToSettings()">
+                <div class="menu-icon settings"><i class="fas fa-cog"></i></div>
+                <div class="menu-info">
+                    <div class="menu-name">设置</div>
+                </div>
+                <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+        </div>
+
+        <button class="logout-btn btn" onclick="logout()">
+            退出登录
+        </button>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>首页</span></a>
+        <a href="tieba.html" class="nav-item"><i class="fas fa-comments"></i><span>论坛</span></a>
+        <a href="channels.html" class="nav-item"><i class="fas fa-broadcast-tower"></i><span>频道</span></a>
+        <a href="messages.html" class="nav-item"><i class="fas fa-envelope"></i><span>消息</span></a>
+        <a href="profile.html" class="nav-item active"><i class="fas fa-user"></i><span>我的</span></a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://verskaemxqoukhnlwnbq.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_gtr_WIuZKiChZwJz8mR6pw_mk_SAYlG';
+
+        let supabaseClient = null;
+        if (window.supabase && window.supabase.createClient) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+
+        function showToast(message, type = 'info') {
+            let toast = document.getElementById('toastContainer');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toastContainer';
+                toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none;';
+                document.body.appendChild(toast);
+            }
+            const toastItem = document.createElement('div');
+            const colors = { error: '#ef4444', success: '#10b981', info: '#667eea', warning: '#f59e0b' };
+            toastItem.style.cssText = `background:${colors[type]};color:white;padding:12px 24px;border-radius:8px;font-size:14px;margin-bottom:8px;animation:toastIn 0.3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.15);`;
+            toastItem.textContent = message;
+            toast.appendChild(toastItem);
+            setTimeout(() => { toastItem.style.opacity = '0'; setTimeout(() => toastItem.remove(), 300); }, 3000);
+        }
+
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = 'home.html';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('user');
+            window.location.href = '../index.html';
+        }
+
+        function goToMyPosts() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser) {
+                localStorage.setItem('filterAuthorId', currentUser.id);
+            }
+            window.location.href = 'tieba.html?myPosts=1';
+        }
+
+        function goToMyFavorites() {
+            window.location.href = 'favorites.html';
+        }
+
+        function goToMessages() {
+            window.location.href = 'messages.html';
+        }
+
+        function goToSettings() {
+            window.location.href = 'settings.html';
+        }
+
+        function goToMyComments() {
+            window.location.href = 'comments.html';
+        }
+
+        function handleVipAction() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser && currentUser.is_vip) {
+                showToast('您已是VIP会员', 'success');
+            } else {
+                showToast('请联系管理员开通VIP', 'warning');
+            }
+        }
+
+        async function loadProfile() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+            if (!currentUser) {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            const { data: profile, error: profileError } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('id', currentUser.id)
+                .single();
+
+            if (profileError) {
+                console.error('获取用户信息失败:', profileError);
+                showToast('加载失败，请刷新重试', 'error');
+                return null;
+            }
+
+            localStorage.setItem('currentUser', JSON.stringify(profile));
+            return profile;
+        }
+
+        async function loadStats() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+            const { count: postCount } = await supabaseClient
+                .from('posts')
+                .select('*', { count: 'exact', head: true })
+                .eq('author_id', currentUser.id)
+                .eq('is_deleted', false);
+
+            const { count: commentCount } = await supabaseClient
+                .from('comments')
+                .select('*', { count: 'exact', head: true })
+                .eq('author_id', currentUser.id);
+
+            const { data: likes } = await supabaseClient
+                .from('likes')
+                .select('id')
+                .eq('user_id', currentUser.id);
+
+            return {
+                posts: postCount || 0,
+                comments: commentCount || 0,
+                likes: likes?.length || 0
+            };
+        }
+
+        function renderProfile(profile) {
+            const name = profile.name || profile.username || '未设置昵称';
+            document.getElementById('avatar').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('userName').textContent = name;
+
+            const studentId = profile.student_id || profile.work_id || '--';
+            document.getElementById('userId').textContent = `学号/工号: ${studentId}`;
+
+            const identityBadge = document.getElementById('identityBadge');
+            if (profile.user_type === 'teacher') {
+                identityBadge.textContent = '老师';
+                identityBadge.className = 'identity-badge teacher';
+            } else if (profile.user_type === 'admin') {
+                identityBadge.textContent = '管理员';
+                identityBadge.className = 'identity-badge admin';
+            } else {
+                identityBadge.textContent = '学生';
+                identityBadge.className = 'identity-badge student';
+            }
+
+            const vipCard = document.getElementById('vipCard');
+            const vipTitle = document.getElementById('vipTitle');
+            const vipDesc = document.getElementById('vipDesc');
+            const vipBtn = document.getElementById('vipBtn');
+
+            if (profile.is_vip) {
+                vipCard.classList.add('vip-active');
+                vipCard.classList.remove('vip-card');
+                vipCard.className = 'vip-card card vip-active';
+                vipTitle.innerHTML = '<span class="crown">👑</span> VIP会员';
+                const expireDate = profile.vip_expire || '永久有效';
+                vipDesc.textContent = `到期时间: ${expireDate}`;
+                vipBtn.textContent = '已开通';
+                vipBtn.className = 'vip-btn btn';
+                identityBadge.textContent = 'VIP';
+                identityBadge.className = 'identity-badge';
+                identityBadge.style.background = 'linear-gradient(135deg, #fbbf24, #f59e0b)';
+                identityBadge.style.color = '#78350f';
+            } else {
+                vipCard.classList.remove('vip-active');
+                vipTitle.innerHTML = '<span class="crown">👑</span> 普通会员';
+                vipDesc.textContent = '开通VIP解锁更多功能';
+                vipBtn.textContent = '开通VIP';
+            }
+        }
+
+        async function init() {
+            if (!supabaseClient) {
+                showToast('Supabase 初始化失败', 'error');
+                return;
+            }
+
+            try {
+                const profile = await loadProfile();
+                if (!profile) return;
+
+                renderProfile(profile);
+
+                const stats = await loadStats();
+                document.getElementById('postCount').textContent = stats.posts;
+                document.getElementById('commentCount').textContent = stats.comments;
+                document.getElementById('likeCount').textContent = stats.likes;
+
+                document.getElementById('loadingContainer').classList.add('hidden');
+                document.getElementById('profileContent').classList.remove('hidden');
+            } catch (err) {
+                console.error('Init error:', err);
+                showToast('加载失败，请重试', 'error');
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
