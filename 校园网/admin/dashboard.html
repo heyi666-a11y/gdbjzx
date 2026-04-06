@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>管理员控制台 - 广东北江中学校园网</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #7c3aed;
+            --bg: #ffffff;
+            --bg-secondary: #f9fafb;
+            --text: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --border: #e5e7eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ef4444, #f59e0b);
+            padding: 16px 20px;
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .header-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-card {
+            background: var(--bg);
+            border-radius: var(--radius);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        .card {
+            background: var(--bg);
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 16px 20px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .data-table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge.admin { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .badge.teacher { background: rgba(124, 58, 237, 0.1); color: #7c3aed; }
+        .badge.student { background: rgba(79, 70, 229, 0.1); color: #4f46e5; }
+        .badge.vip { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .badge.normal { background: var(--bg-secondary); color: var(--text-tertiary); }
+
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            border: none;
+            cursor: pointer;
+            margin-right: 6px;
+        }
+
+        .action-btn.primary {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+        }
+
+        .action-btn.danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        .action-btn.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .action-btn:active {
+            opacity: 0.8;
+        }
+
+        .announcement-form {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .announcement-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14px;
+        }
+
+        .announcement-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .announcement-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #ef4444, #f59e0b);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .announcement-btn:active {
+            transform: scale(0.98);
+        }
+
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--text);
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            z-index: 9999;
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--error); }
+        .toast.success { background: var(--success); }
+        .toast.warning { background: var(--warning); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1 class="page-title">管理员控制台</h1>
+            <button class="header-btn" onclick="logout()">退出</button>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-label">总用户数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalPosts">0</div>
+                <div class="stat-label">帖子数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalResources">0</div>
+                <div class="stat-label">资源数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalVip">0</div>
+                <div class="stat-label">VIP会员</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">📢 系统公告</h3>
+            </div>
+            <div class="card-body">
+                <div class="announcement-form">
+                    <input type="text" class="announcement-input" id="announcementInput" placeholder="输入公告内容...">
+                    <button class="announcement-btn" onclick="sendAnnouncement()">群发公告</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="tabs">
+                <div class="tab active" data-tab="users" onclick="switchTab('users')">用户管理</div>
+                <div class="tab" data-tab="posts" onclick="switchTab('posts')">帖子管理</div>
+                <div class="tab" data-tab="resources" onclick="switchTab('resources')">资源管理</div>
+                <div class="tab" data-tab="announcements" onclick="switchTab('announcements')">公告管理</div>
+                <div class="tab" data-tab="messages" onclick="switchTab('messages')">消息管理</div>
+            </div>
+
+            <div id="usersTab">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>用户</th>
+                            <th>学号/工号</th>
+                            <th>身份</th>
+                            <th>VIP状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="postsTab" style="display: none;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>标题</th>
+                            <th>作者</th>
+                            <th>频道</th>
+                            <th>时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="postsTable">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="resourcesTab" style="display: none;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>资源名</th>
+                            <th>上传者</th>
+                            <th>大小</th>
+                            <th>下载次数</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resourcesTable">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="announcementsTab" style="display: none;">
+                <div style="padding: 16px;">
+                    <div style="margin-bottom: 16px;">
+                        <button class="btn" onclick="openAnnouncementModal()" style="padding: 10px 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            <i class="fas fa-plus"></i> 发布公告
+                        </button>
+                    </div>
+                    <div id="announcementsList"></div>
+                </div>
+            </div>
+
+            <div id="messagesTab" style="display: none;">
+                <div style="padding: 16px;">
+                    <!-- 聊天记录监控功能 -->
+                    <div style="background: #f9fafb; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+                        <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <span style="color: var(--primary);">🔍</span> 查看用户聊天记录
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <select id="chatUser1" style="padding: 10px; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 14px;">
+                                <option value="">选择用户1</option>
+                            </select>
+                            <select id="chatUser2" style="padding: 10px; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 14px;">
+                                <option value="">选择用户2</option>
+                            </select>
+                            <button onclick="viewUserChat()" style="padding: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">
+                                查看聊天记录
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 16px; display: flex; gap: 10px;">
+                        <input type="text" id="adminMsgSearch" placeholder="搜索用户..." style="flex:1; padding: 10px; border: 1px solid #e8e8e8; border-radius: 8px;" oninput="searchAdminMessages()">
+                        <button class="btn" onclick="showAllMessages()" style="padding: 10px 16px;">显示全部</button>
+                    </div>
+                    <div id="adminMessagesList"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="announcementModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 12px; padding: 24px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+            <h3 style="margin-bottom: 16px;">发布公告</h3>
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">标题</label>
+                <input type="text" id="announcementTitle" style="width: 100%; padding: 10px; border: 1px solid #e8e8e8; border-radius: 8px;" placeholder="请输入公告标题">
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">内容</label>
+                <textarea id="announcementContent" style="width: 100%; padding: 10px; border: 1px solid #e8e8e8; border-radius: 8px; min-height: 120px;" placeholder="请输入公告内容"></textarea>
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="announcementPinned"> 置顶公告
+                </label>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button onclick="closeAnnouncementModal()" style="padding: 10px 20px; border: 1px solid #e8e8e8; background: white; border-radius: 8px; cursor: pointer;">取消</button>
+                <button onclick="submitAnnouncement()" style="padding: 10px 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; cursor: pointer;">发布</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // 初始化 Supabase
+        let supabaseClient = null;
+        if (window.supabase && window.supabase.createClient) {
+            supabaseClient = window.supabase.createClient(
+                'https://verskaemxqoukhnlwnbq.supabase.co',
+                'sb_publishable_gtr_WIuZKiChZwJz8mR6pw_mk_SAYlG'
+            );
+        }
+
+        const toast = document.getElementById('toast');
+        let adminUser = null;
+        let currentTab = 'users';
+
+        function showToast(msg, type = 'info') {
+            toast.textContent = msg;
+            toast.className = 'toast ' + type + ' show';
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function checkAdmin() {
+            const user = localStorage.getItem('user');
+            if (!user) {
+                window.location.href = '../index.html';
+                return null;
+            }
+            const userData = JSON.parse(user);
+            if (userData.user_type !== 'admin') {
+                alert('仅管理员可访问此页面');
+                window.location.href = '../index.html';
+                return null;
+            }
+            return userData;
+        }
+
+        async function loadStats() {
+            try {
+                const { count: users } = await supabaseClient.from('profiles').select('*', { count: 'exact', head: true });
+                const { count: posts } = await supabaseClient.from('posts').select('*', { count: 'exact', head: true });
+                const { count: resources } = await supabaseClient.from('resources').select('*', { count: 'exact', head: true });
+                const { count: vip } = await supabaseClient.from('profiles').select('*', { count: 'exact', head: true }).eq('is_vip', true);
+
+                document.getElementById('totalUsers').textContent = users || 0;
+                document.getElementById('totalPosts').textContent = posts || 0;
+                document.getElementById('totalResources').textContent = resources || 0;
+                document.getElementById('totalVip').textContent = vip || 0;
+            } catch (err) {
+                console.error('Load stats error:', err);
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const tbody = document.getElementById('usersTable');
+                tbody.innerHTML = (data || []).map(user => `
+                    <tr>
+                        <td>${escapeHtml(user.name)}</td>
+                        <td>${escapeHtml(user.student_id || '--')}</td>
+                        <td><span class="badge ${user.user_type}">${getUserTypeName(user.user_type)}</span></td>
+                        <td><span class="badge ${user.is_vip ? 'vip' : 'normal'}">${user.is_vip ? 'VIP' : '普通'}</span></td>
+                        <td>
+                            ${user.user_type !== 'admin' ? `
+                                <button class="action-btn ${user.is_vip ? 'danger' : 'success'}" onclick="toggleVip('${user.id}', ${!user.is_vip})">
+                                    ${user.is_vip ? '取消VIP' : '开通VIP'}
+                                </button>
+                                <button class="action-btn danger" onclick="deleteUser('${user.id}')">删除</button>
+                            ` : '--'}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Load users error:', err);
+            }
+        }
+
+        async function loadPosts() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('posts')
+                    .select('*, profiles(name)')
+                    .eq('is_deleted', false)
+                    .order('created_at', { ascending: false })
+                    .limit(50);
+
+                if (error) throw error;
+
+                const tbody = document.getElementById('postsTable');
+                tbody.innerHTML = (data || []).map(post => `
+                    <tr>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(post.title)}</td>
+                        <td>${escapeHtml(post.profiles?.name || '未知')}</td>
+                        <td>${getChannelName(post.channel)}</td>
+                        <td>${formatTime(post.created_at)}</td>
+                        <td>
+                            <button class="action-btn danger" onclick="deletePost('${post.id}')">删除</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Load posts error:', err);
+            }
+        }
+
+        async function loadResources() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('resources')
+                    .select('*, profiles(name)')
+                    .eq('is_deleted', false)
+                    .order('created_at', { ascending: false })
+                    .limit(50);
+
+                if (error) throw error;
+
+                const tbody = document.getElementById('resourcesTable');
+                tbody.innerHTML = (data || []).map(r => `
+                    <tr>
+                        <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(r.title)}</td>
+                        <td>${escapeHtml(r.profiles?.name || '未知')}</td>
+                        <td>${formatFileSize(r.file_size)}</td>
+                        <td>${r.download_count || 0}</td>
+                        <td>
+                            <button class="action-btn danger" onclick="deleteResource('${r.id}')">删除</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Load resources error:', err);
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.tab === tab);
+            });
+            document.getElementById('usersTab').style.display = tab === 'users' ? 'block' : 'none';
+            document.getElementById('postsTab').style.display = tab === 'posts' ? 'block' : 'none';
+            document.getElementById('resourcesTab').style.display = tab === 'resources' ? 'block' : 'none';
+            document.getElementById('announcementsTab').style.display = tab === 'announcements' ? 'block' : 'none';
+            document.getElementById('messagesTab').style.display = tab === 'messages' ? 'block' : 'none';
+            if (tab === 'messages') {
+                loadAdminMessages();
+                loadChatUserSelects();
+            }
+            if (tab === 'announcements') {
+                loadAnnouncements();
+            }
+        }
+
+        async function toggleVip(userId, grant) {
+            try {
+                const { error } = await supabaseClient
+                    .from('profiles')
+                    .update({ is_vip: grant })
+                    .eq('id', userId);
+
+                if (error) throw error;
+
+                showToast(grant ? 'VIP开通成功' : 'VIP已取消', 'success');
+                loadUsers();
+                loadStats();
+            } catch (err) {
+                console.error('Toggle VIP error:', err);
+                showToast('操作失败', 'error');
+            }
+        }
+
+        async function deleteUser(userId) {
+            if (!confirm('确定要删除此用户吗？此操作不可撤销。')) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('profiles')
+                    .delete()
+                    .eq('id', userId);
+
+                if (error) throw error;
+
+                showToast('用户已删除', 'success');
+                loadUsers();
+                loadStats();
+            } catch (err) {
+                console.error('Delete user error:', err);
+                showToast('删除失败', 'error');
+            }
+        }
+
+        async function deletePost(postId) {
+            if (!confirm('确定要删除此帖子吗？')) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('posts')
+                    .update({ is_deleted: true })
+                    .eq('id', postId);
+
+                if (error) throw error;
+
+                showToast('帖子已删除', 'success');
+                loadPosts();
+                loadStats();
+            } catch (err) {
+                console.error('Delete post error:', err);
+                showToast('删除失败', 'error');
+            }
+        }
+
+        async function deleteResource(resourceId) {
+            if (!confirm('确定要删除此资源吗？')) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('resources')
+                    .update({ is_deleted: true })
+                    .eq('id', resourceId);
+
+                if (error) throw error;
+
+                showToast('资源已删除', 'success');
+                loadResources();
+                loadStats();
+            } catch (err) {
+                console.error('Delete resource error:', err);
+                showToast('删除失败', 'error');
+            }
+        }
+
+        async function sendAnnouncement() {
+            const content = document.getElementById('announcementInput').value.trim();
+            if (!content) {
+                showToast('请输入公告内容', 'error');
+                return;
+            }
+
+            try {
+                // 获取所有用户
+                const { data: users, error: usersError } = await supabaseClient
+                    .from('profiles')
+                    .select('id');
+
+                if (usersError) throw usersError;
+
+                // 向每个用户发送私信
+                const messages = (users || []).map(user => ({
+                    sender_id: adminUser.id,
+                    receiver_id: user.id,
+                    content: '📢 【系统公告】' + content,
+                    message_type: 'text'
+                }));
+
+                const { error: msgError } = await supabaseClient
+                    .from('messages')
+                    .insert(messages);
+
+                if (msgError) throw msgError;
+
+                document.getElementById('announcementInput').value = '';
+                showToast('公告已群发给所有用户', 'success');
+            } catch (err) {
+                console.error('Send announcement error:', err);
+                showToast('发送失败', 'error');
+            }
+        }
+
+        function getUserTypeName(type) {
+            const names = { admin: '管理员', teacher: '教师', student: '学生' };
+            return names[type] || type;
+        }
+
+        function getChannelName(channel) {
+            const names = { student: '学生频道', teacher: '教师频道', all: '师生频道' };
+            return names[channel] || '全部';
+        }
+
+        function formatTime(time) {
+            if (!time) return '--';
+            const date = new Date(time);
+            return date.toLocaleDateString();
+        }
+
+        function formatFileSize(bytes) {
+            if (!bytes) return '--';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function loadAdminMessages() {
+            const container = document.getElementById('adminMessagesList');
+            container.innerHTML = '<div style="text-align:center;padding:20px;color:#666;">加载中...</div>';
+            try {
+                const adminId = '00000000-0000-0000-0000-000000000001';
+                const { data: sent, error: err1 } = await supabaseClient
+                    .from('messages')
+                    .select('*, receiver:profiles!receiver_id(name, user_type)')
+                    .eq('sender_id', adminId)
+                    .order('created_at', { ascending: false })
+                    .limit(50);
+
+                const { data: received, error: err2 } = await supabaseClient
+                    .from('messages')
+                    .select('*, sender:profiles!sender_id(name, user_type)')
+                    .eq('receiver_id', adminId)
+                    .order('created_at', { ascending: false })
+                    .limit(50);
+
+                if (err1 || err2) throw err1 || err2;
+
+                const allMsgs = [...(sent || []), ...(received || [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                if (!allMsgs || allMsgs.length === 0) {
+                    container.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">暂无消息记录</div>';
+                    return;
+                }
+
+                const conversations = new Map();
+                allMsgs.forEach(msg => {
+                    const otherId = msg.sender_id === adminId ? msg.receiver_id : msg.sender_id;
+                    const otherName = msg.sender_id === adminId ? msg.receiver?.name : msg.sender?.name;
+                    if (!conversations.has(otherId)) {
+                        conversations.set(otherId, { name: otherName, lastMsg: msg });
+                    }
+                });
+
+                container.innerHTML = Array.from(conversations.values()).slice(0, 20).map(conv => `
+                    <div style="display:flex;align-items:center;padding:12px;border-bottom:1px solid #f0f0f0;cursor:pointer;" onclick="openAdminChat('${conv.lastMsg.sender_id === adminId ? conv.lastMsg.receiver_id : conv.lastMsg.sender_id}', '${escapeHtml(conv.name || "用户")}')">
+                        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);color:white;display:flex;align-items:center;justify-content:center;font-size:16px;margin-right:12px;">
+                            ${(conv.name || 'U').charAt(0)}
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600;margin-bottom:4px;">${escapeHtml(conv.name || '未知用户')}</div>
+                            <div style="font-size:12px;color:#999;">${escapeHtml(conv.lastMsg.content.substring(0, 30))}...</div>
+                        </div>
+                        <div style="font-size:11px;color:#999;">${formatTime(conv.lastMsg.created_at)}</div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                console.error('Load messages error:', err);
+                container.innerHTML = '<div style="text-align:center;padding:40px;color:#ef4444;">加载失败</div>';
+            }
+        }
+
+        // 加载用户列表到聊天记录选择器
+        async function loadChatUserSelects() {
+            try {
+                const { data: users, error } = await supabaseClient
+                    .from('profiles')
+                    .select('id, name, user_type')
+                    .order('name');
+
+                if (error) throw error;
+
+                const select1 = document.getElementById('chatUser1');
+                const select2 = document.getElementById('chatUser2');
+                
+                // 清空并添加默认选项
+                select1.innerHTML = '<option value="">选择用户1</option>';
+                select2.innerHTML = '<option value="">选择用户2</option>';
+
+                users?.forEach(user => {
+                    const option1 = new Option(`${user.name} (${user.user_type})`, user.id);
+                    const option2 = new Option(`${user.name} (${user.user_type})`, user.id);
+                    select1.add(option1);
+                    select2.add(option2);
+                });
+            } catch (err) {
+                console.error('加载用户列表失败:', err);
+            }
+        }
+
+        // 查看用户聊天记录
+        async function viewUserChat() {
+            const user1Id = document.getElementById('chatUser1').value;
+            const user2Id = document.getElementById('chatUser2').value;
+
+            if (!user1Id || !user2Id) {
+                showToast('请选择两个用户');
+                return;
+            }
+
+            if (user1Id === user2Id) {
+                showToast('不能选择同一个用户');
+                return;
+            }
+
+            // 跳转到聊天记录监控页面
+            window.location.href = `../pages/admin-chat-monitor.html?user1=${user1Id}&user2=${user2Id}`;
+        }
+
+        function searchAdminMessages() {
+            const keyword = document.getElementById('adminMsgSearch').value.trim().toLowerCase();
+            if (!keyword) {
+                showAllMessages();
+                return;
+            }
+            const container = document.getElementById('adminMessagesList');
+            const items = container.querySelectorAll('div[onclick]');
+            items.forEach(item => {
+                const name = item.querySelector('div:nth-child(2) div:first-child')?.textContent || '';
+                item.style.display = name.toLowerCase().includes(keyword) ? 'flex' : 'none';
+            });
+        }
+
+        function showAllMessages() {
+            document.getElementById('adminMsgSearch').value = '';
+            loadAdminMessages();
+        }
+
+        function openAdminChat(userId, userName) {
+            window.location.href = `../pages/chat.html?userId=${userId}&name=${encodeURIComponent(userName)}`;
+        }
+
+        async function loadAnnouncements() {
+            const container = document.getElementById('announcementsList');
+            try {
+                const { data, error } = await supabaseClient
+                    .from('announcements')
+                    .select('*')
+                    .order('is_pinned', { ascending: false })
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">暂无公告</div>';
+                    return;
+                }
+
+                container.innerHTML = data.map(a => `
+                    <div style="display:flex;align-items:center;padding:16px;border-bottom:1px solid #f0f0f0;">
+                        <div style="flex:1;">
+                            <div style="font-weight:600;margin-bottom:4px;">${a.is_pinned ? '<i class="fas fa-thumbtack" style="color:#667eea;"></i> ' : ''}${escapeHtml(a.title)}</div>
+                            <div style="font-size:12px;color:#999;">${formatTime(a.created_at)} · ${a.is_active ? '已发布' : '已下架'}</div>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <button class="action-btn ${a.is_pinned ? '' : 'success'}" onclick="togglePinAnnouncement('${a.id}', ${!a.is_pinned})">${a.is_pinned ? '取消置顶' : '置顶'}</button>
+                            <button class="action-btn ${a.is_active ? 'danger' : 'success'}" onclick="toggleActiveAnnouncement('${a.id}', ${!a.is_active})">${a.is_active ? '下架' : '发布'}</button>
+                            <button class="action-btn danger" onclick="deleteAnnouncement('${a.id}')">删除</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Load announcements error:', err);
+                container.innerHTML = '<div style="text-align:center;padding:40px;color:#ef4444;">加载失败</div>';
+            }
+        }
+
+        function openAnnouncementModal() {
+            document.getElementById('announcementModal').style.display = 'flex';
+        }
+
+        function closeAnnouncementModal() {
+            document.getElementById('announcementModal').style.display = 'none';
+            document.getElementById('announcementTitle').value = '';
+            document.getElementById('announcementContent').value = '';
+            document.getElementById('announcementPinned').checked = false;
+        }
+
+        async function submitAnnouncement() {
+            const title = document.getElementById('announcementTitle').value.trim();
+            const content = document.getElementById('announcementContent').value.trim();
+            const isPinned = document.getElementById('announcementPinned').checked;
+
+            if (!title || !content) {
+                showToast('请填写标题和内容', 'error');
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('announcements')
+                    .insert({
+                        title: title,
+                        content: content,
+                        author_id: adminUser.id,
+                        is_pinned: isPinned,
+                        is_active: true
+                    });
+
+                if (error) throw error;
+
+                showToast('公告发布成功', 'success');
+                closeAnnouncementModal();
+                loadAnnouncements();
+            } catch (err) {
+                console.error('Submit announcement error:', err);
+                showToast('发布失败', 'error');
+            }
+        }
+
+        async function togglePinAnnouncement(id, pin) {
+            try {
+                const { error } = await supabaseClient
+                    .from('announcements')
+                    .update({ is_pinned: pin })
+                    .eq('id', id);
+
+                if (error) throw error;
+                showToast(pin ? '已置顶' : '已取消置顶', 'success');
+                loadAnnouncements();
+            } catch (err) {
+                showToast('操作失败', 'error');
+            }
+        }
+
+        async function toggleActiveAnnouncement(id, active) {
+            try {
+                const { error } = await supabaseClient
+                    .from('announcements')
+                    .update({ is_active: active })
+                    .eq('id', id);
+
+                if (error) throw error;
+                showToast(active ? '已发布' : '已下架', 'success');
+                loadAnnouncements();
+            } catch (err) {
+                showToast('操作失败', 'error');
+            }
+        }
+
+        async function deleteAnnouncement(id) {
+            if (!confirm('确定要删除此公告吗？')) return;
+            try {
+                const { error } = await supabaseClient
+                    .from('announcements')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+                showToast('公告已删除', 'success');
+                loadAnnouncements();
+            } catch (err) {
+                showToast('删除失败', 'error');
+            }
+        }
+
+        function logout() {
+            if (confirm('确定要退出管理员账号吗？')) {
+                localStorage.removeItem('user');
+                window.location.href = '../index.html';
+            }
+        }
+
+        // 初始化
+        adminUser = checkAdmin();
+        if (adminUser) {
+            loadStats();
+            loadUsers();
+            loadPosts();
+            loadResources();
+        }
+    </script>
+</body>
+</html>

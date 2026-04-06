@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>教师注册 - 广东北江中学校园网</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <style>
+        .register-page {
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+        }
+
+        .register-header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .register-header h1 {
+            font-size: 24px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .register-header p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .teacher-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 12px;
+        }
+
+        .register-form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-top: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .input-group label .required {
+            color: #ef4444;
+            margin-left: 2px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input,
+        .input-wrapper select {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #fafafa;
+            appearance: none;
+        }
+
+        .input-wrapper input:focus,
+        .input-wrapper select:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: #9ca3af;
+            transition: color 0.3s ease;
+            pointer-events: none;
+        }
+
+        .input-wrapper input:focus ~ .input-icon,
+        .input-wrapper select:focus ~ .input-icon,
+        .input-wrapper:focus-within .input-icon {
+            color: #8b5cf6;
+        }
+
+        .select-arrow {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: #9ca3af;
+            pointer-events: none;
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .form-hint.warning {
+            color: #f59e0b;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #6b7280;
+            margin-top: 12px;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .login-link p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .login-link a {
+            color: #8b5cf6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .student-register-link {
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .student-register-link a {
+            color: #6366f1;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(99, 102, 241, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .student-register-link a:hover {
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, #10b981, #34d399);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: scaleIn 0.5s ease;
+        }
+
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            color: white;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .success-message h3 {
+            font-size: 20px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .success-message p {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-container">
+        <div class="register-page">
+            <div class="register-header">
+                <h1>教师注册</h1>
+                <p>加入广东北江中学校园网</p>
+                <div class="teacher-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                    </svg>
+                    教师专属通道
+                </div>
+            </div>
+
+            <div class="register-form-container">
+                <!-- 注册表单 -->
+                <div id="registerForm">
+                    <div class="input-group">
+                        <label for="teacherName">姓名 <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <input type="text" id="teacherName" placeholder="请输入真实姓名">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="teacherId">工号 <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                                <line x1="8" y1="9" x2="16" y2="9"></line>
+                                <line x1="8" y1="13" x2="16" y2="13"></line>
+                            </svg>
+                            <input type="text" id="teacherId" placeholder="请输入工号">
+                        </div>
+                        <div class="form-hint">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            工号将用于登录系统
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="subject">教授学科 <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                            </svg>
+                            <select id="subject">
+                                <option value="">请选择学科</option>
+                                <option value="语文">语文</option>
+                                <option value="数学">数学</option>
+                                <option value="英语">英语</option>
+                                <option value="物理">物理</option>
+                                <option value="化学">化学</option>
+                                <option value="生物">生物</option>
+                                <option value="政治">政治</option>
+                                <option value="历史">历史</option>
+                                <option value="地理">地理</option>
+                                <option value="体育">体育</option>
+                                <option value="音乐">音乐</option>
+                                <option value="美术">美术</option>
+                                <option value="信息技术">信息技术</option>
+                                <option value="其他">其他</option>
+                            </select>
+                            <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password">密码 <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            <input type="password" id="password" placeholder="默认密码: 123">
+                        </div>
+                        <div class="form-hint warning">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            建议使用默认密码 123，后续可在个人中心修改
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="confirmPassword">确认密码 <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            <input type="password" id="confirmPassword" placeholder="请再次输入密码">
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="submitRegister()">
+                        完成注册
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="goToLogin()">
+                        返回登录
+                    </button>
+                </div>
+
+                <!-- 注册成功 -->
+                <div id="successMessage" class="success-message hidden">
+                    <div class="success-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <h3>注册成功！</h3>
+                    <p>欢迎使用广东北江中学校园网</p>
+                    <button type="button" class="btn btn-primary" onclick="goToLogin()">
+                        立即登录
+                    </button>
+                </div>
+            </div>
+
+            <div class="student-register-link">
+                <a href="register-student.html">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    学生注册通道
+                </a>
+            </div>
+
+            <div class="login-link">
+                <p>已有账号？<a href="../index.html">立即登录</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // 初始化 Supabase
+        let supabaseClient = null;
+        if (window.supabase && window.supabase.createClient) {
+            supabaseClient = window.supabase.createClient(
+                'https://verskaemxqoukhnlwnbq.supabase.co',
+                'sb_publishable_gtr_WIuZKiChZwJz8mR6pw_mk_SAYlG'
+            );
+        }
+
+        async function submitRegister() {
+            const name = document.getElementById('teacherName').value.trim();
+            const teacherId = document.getElementById('teacherId').value.trim();
+            const subject = document.getElementById('subject').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!name) {
+                showToast('请输入姓名', 'error');
+                return;
+            }
+            if (!teacherId) {
+                showToast('请输入工号', 'error');
+                return;
+            }
+            if (!subject) {
+                showToast('请选择教授学科', 'error');
+                return;
+            }
+            if (!password) {
+                showToast('请输入密码', 'error');
+                return;
+            }
+            if (password !== confirmPassword) {
+                showToast('两次输入的密码不一致', 'error');
+                return;
+            }
+
+            try {
+                // 直接创建教师资料
+                const { data: profileData, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .insert([{
+                        user_type: 'teacher',
+                        name: name,
+                        student_id: teacherId,
+                        subject: subject,
+                        is_vip: true
+                    }])
+                    .select()
+                    .single();
+
+                if (profileError) {
+                    if (profileError.code === '23505') {
+                        showToast('工号已存在', 'error');
+                    } else {
+                        throw profileError;
+                    }
+                    return;
+                }
+
+                // 显示成功消息
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('successMessage').classList.remove('hidden');
+                showToast('注册成功', 'success');
+
+            } catch (err) {
+                console.error(err);
+                showToast('注册失败，请稍后重试', 'error');
+            }
+        }
+
+        function goToLogin() {
+            window.location.href = '../index.html';
+        }
+
+        // 设置默认密码
+        document.getElementById('password').value = '123';
+        document.getElementById('confirmPassword').value = '123';
+    </script>
+</body>
+</html>

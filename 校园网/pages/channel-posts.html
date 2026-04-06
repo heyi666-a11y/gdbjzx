@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>频道帖子 - 广东北江中学校园网</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border-color: #f0f0f0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.06);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding-bottom: 70px;
+        }
+
+        .btn:active { transform: scale(0.96); transition: all 0.15s ease-out; }
+
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.2s ease-out; }
+
+        .page-content { animation: fadeIn 0.3s ease-out; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .header {
+            background: var(--bg-color);
+            box-shadow: var(--shadow);
+            padding: 12px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: all 0.15s ease-out;
+        }
+
+        .back-btn:active { transform: scale(0.96); }
+
+        .page-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .add-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 18px;
+            transition: all 0.15s ease-out;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .add-btn:active { transform: scale(0.96); }
+
+        .main {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .channel-banner {
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .channel-banner-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+            background: var(--gradient);
+            color: white;
+        }
+
+        .channel-banner-info { flex: 1; }
+
+        .channel-banner-name {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .channel-banner-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .loading-state i {
+            font-size: 32px;
+            margin-bottom: 12px;
+            color: #667eea;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #d1d5db;
+        }
+
+        .empty-state p { font-size: 14px; }
+
+        .post-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .post-card {
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease-out;
+        }
+
+        .post-card:active { transform: scale(0.98); }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .post-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .post-info { flex: 1; min-width: 0; }
+
+        .post-author {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-primary);
+        }
+
+        .vip-badge {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #78350f;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .post-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .post-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            color: var(--text-primary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .post-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .post-actions { display: flex; gap: 16px; }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            user-select: none;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .post-action.liked { color: #ef4444; }
+
+        .post-action:active { transform: scale(0.96); }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #999;
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.2s ease;
+            padding: 4px 12px;
+        }
+
+        .nav-item.active { color: #667eea; }
+
+        .nav-item:active { transform: scale(0.96); }
+
+        .nav-item i { font-size: 20px; margin-bottom: 4px; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            width: 100%;
+            max-width: 600px;
+            background: var(--bg-color);
+            border-radius: 16px 16px 0 0;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal { transform: translateY(0); }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background: var(--bg-color);
+        }
+
+        .modal-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--text-secondary);
+            transition: all 0.15s ease-out;
+        }
+
+        .modal-close:active { transform: scale(0.96); }
+
+        .modal-body { padding: 20px; }
+
+        .form-group { margin-bottom: 16px; }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            background: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            width: 100%;
+            height: 48px;
+            background: var(--gradient);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease-out;
+        }
+
+        .submit-btn:active { transform: scale(0.96); }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        @media (min-width: 601px) {
+            body { background: #f8f9fa; }
+            .bottom-nav {
+                left: 50%;
+                transform: translateX(-50%);
+                width: 600px;
+                border-radius: 16px 16px 0 0;
+            }
+            .modal-overlay {
+                width: 600px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <button class="back-btn btn" onclick="history.back()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="page-title" id="pageTitle">频道</h1>
+            <button class="add-btn btn" onclick="openPostModal()">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="main page-content">
+        <div class="channel-banner card" id="channelBanner">
+            <div class="channel-banner-icon" id="channelIcon"></div>
+            <div class="channel-banner-info">
+                <div class="channel-banner-name" id="channelName">加载中...</div>
+                <div class="channel-banner-desc" id="channelDesc"></div>
+            </div>
+        </div>
+
+        <div id="postList">
+            <div class="loading-state">
+                <i class="fas fa-spinner"></i>
+                <p>加载中...</p>
+            </div>
+        </div>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>首页</span></a>
+        <a href="tieba.html" class="nav-item"><i class="fas fa-comments"></i><span>论坛</span></a>
+        <a href="channels.html" class="nav-item active"><i class="fas fa-broadcast-tower"></i><span>频道</span></a>
+        <a href="messages.html" class="nav-item"><i class="fas fa-envelope"></i><span>消息</span></a>
+        <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>我的</span></a>
+    </nav>
+
+    <div class="modal-overlay" id="postModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">发布帖子</h2>
+                <button class="modal-close btn" onclick="closePostModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">标题</label>
+                    <input type="text" class="form-input" id="postTitle" placeholder="请输入标题" maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">内容</label>
+                    <textarea class="form-input form-textarea" id="postContent" placeholder="请输入内容" maxlength="2000"></textarea>
+                </div>
+                <button class="submit-btn btn" id="submitBtn" onclick="submitPost()">发布</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://verskaemxqoukhnlwnbq.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_gtr_WIuZKiChZwJz8mR6pw_mk_SAYlG';
+
+        let supabaseClient = null;
+        if (window.supabase && window.supabase.createClient) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+
+        let currentUser = null;
+        let currentChannel = null;
+        let posts = [];
+
+        function showToast(message, type = 'info') {
+            let toast = document.getElementById('toastContainer');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toastContainer';
+                toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none;';
+                document.body.appendChild(toast);
+            }
+            const toastItem = document.createElement('div');
+            const colors = { error: '#ef4444', success: '#10b981', info: '#667eea', warning: '#f59e0b' };
+            toastItem.style.cssText = `background:${colors[type]};color:white;padding:12px 24px;border-radius:8px;font-size:14px;margin-bottom:8px;animation:slideIn 0.3s ease;`;
+            toastItem.textContent = message;
+            toast.appendChild(toastItem);
+            setTimeout(() => { toastItem.style.opacity = '0'; setTimeout(() => toastItem.remove(), 300); }, 3000);
+        }
+
+        function getUserInfo() {
+            const user = localStorage.getItem('currentUser') || localStorage.getItem('user');
+            if (!user) {
+                window.location.href = 'index.html';
+                return null;
+            }
+            return JSON.parse(user);
+        }
+
+        function getChannelInfo(channel) {
+            const channels = {
+                'student': {
+                    name: '学生频道',
+                    desc: '学生专属频道',
+                    icon: '<i class="fas fa-graduation-cap"></i>'
+                },
+                'teacher': {
+                    name: '教师频道',
+                    desc: '教师专属频道',
+                    icon: '<i class="fas fa-chalkboard-teacher"></i>'
+                },
+                'all': {
+                    name: '综合频道',
+                    desc: '师生共同交流',
+                    icon: '<i class="fas fa-users"></i>'
+                }
+            };
+            return channels[channel] || channels['all'];
+        }
+
+        function getAvatarText(name) {
+            if (!name) return '匿';
+            return name.charAt(0).toUpperCase();
+        }
+
+        function formatTime(time) {
+            if (!time) return '';
+            const date = new Date(time);
+            const now = new Date();
+            const diff = now - date;
+
+            if (diff < 60000) return '刚刚';
+            if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
+            if (diff < 604800000) return Math.floor(diff / 86400000) + '天前';
+            return date.toLocaleDateString();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function renderChannelBanner() {
+            const info = getChannelInfo(currentChannel);
+            document.getElementById('pageTitle').textContent = info.name;
+            document.getElementById('channelName').textContent = info.name;
+            document.getElementById('channelDesc').textContent = info.desc;
+            document.getElementById('channelIcon').innerHTML = info.icon;
+        }
+
+        function canPostInChannel() {
+            if (!currentUser) return false;
+            if (currentChannel === 'all') return true;
+            if (currentChannel === 'student' && currentUser.user_type === 'student') return true;
+            if (currentChannel === 'teacher' && currentUser.user_type === 'teacher') return true;
+            return false;
+        }
+
+        async function loadPosts() {
+            const container = document.getElementById('postList');
+
+            if (!supabaseClient) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>无法连接到服务器</p>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('posts')
+                    .select('*, profiles(name, is_vip)')
+                    .eq('channel', currentChannel)
+                    .eq('is_deleted', false)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                posts = data || [];
+                renderPosts();
+            } catch (err) {
+                console.error('Load posts error:', err);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>加载失败，请稍后重试</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderPosts() {
+            const container = document.getElementById('postList');
+
+            if (posts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-comment-dots"></i>
+                        <p>暂无帖子</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '<div class="post-list">' + posts.map(post => `
+                <div class="post-card card" onclick="viewPost('${post.id}')">
+                    <div class="post-header">
+                        <div class="post-avatar">${getAvatarText(post.profiles?.name)}</div>
+                        <div class="post-info">
+                            <div class="post-author">
+                                ${escapeHtml(post.profiles?.name || '匿名用户')}
+                                ${post.profiles?.is_vip ? '<span class="vip-badge">VIP</span>' : ''}
+                            </div>
+                            <div class="post-meta">${formatTime(post.created_at)}</div>
+                        </div>
+                    </div>
+                    <div class="post-title">${escapeHtml(post.title)}</div>
+                    <div class="post-text">${escapeHtml(post.content)}</div>
+                    <div class="post-footer">
+                        <span class="post-time">${formatTime(post.created_at)}</span>
+                        <div class="post-actions">
+                            <span class="post-action ${post.is_liked ? 'liked' : ''}" onclick="event.stopPropagation();toggleLike('${post.id}')">
+                                <i class="fas fa-heart"></i>
+                                <span>${post.likes_count || 0}</span>
+                            </span>
+                            <span class="post-action" onclick="event.stopPropagation();viewPost('${post.id}')">
+                                <i class="fas fa-comment"></i>
+                                <span>${post.comments_count || 0}</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('') + '</div>';
+        }
+
+        function openPostModal() {
+            if (!currentUser) {
+                showToast('请先登录', 'warning');
+                return;
+            }
+
+            if (!canPostInChannel()) {
+                showToast('您没有权限在此频道发帖', 'warning');
+                return;
+            }
+
+            document.getElementById('postModal').classList.add('show');
+        }
+
+        function closePostModal() {
+            document.getElementById('postModal').classList.remove('show');
+            document.getElementById('postTitle').value = '';
+            document.getElementById('postContent').value = '';
+        }
+
+        async function submitPost() {
+            const title = document.getElementById('postTitle').value.trim();
+            const content = document.getElementById('postContent').value.trim();
+
+            if (!title) {
+                showToast('请输入标题', 'error');
+                return;
+            }
+            if (!content) {
+                showToast('请输入内容', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '发布中...';
+
+            try {
+                const { error } = await supabaseClient
+                    .from('posts')
+                    .insert({
+                        author_id: currentUser.id,
+                        channel: currentChannel,
+                        title: title,
+                        content: content
+                    });
+
+                if (error) throw error;
+
+                closePostModal();
+                showToast('发布成功', 'success');
+                loadPosts();
+
+            } catch (err) {
+                console.error('Submit post error:', err);
+                showToast('发布失败，请稍后重试', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '发布';
+            }
+        }
+
+        async function toggleLike(postId) {
+            if (!currentUser) {
+                showToast('请先登录', 'warning');
+                return;
+            }
+
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+
+            post.is_liked = !post.is_liked;
+            post.likes_count = post.is_liked ? (post.likes_count || 0) + 1 : Math.max(0, (post.likes_count || 0) - 1);
+            renderPosts();
+
+            try {
+                if (post.is_liked) {
+                    await supabaseClient
+                        .from('likes')
+                        .insert({
+                            post_id: postId,
+                            user_id: currentUser.id
+                        });
+                } else {
+                    await supabaseClient
+                        .from('likes')
+                        .delete()
+                        .eq('post_id', postId)
+                        .eq('user_id', currentUser.id);
+                }
+            } catch (err) {
+                console.error('Toggle like error:', err);
+            }
+        }
+
+        function viewPost(postId) {
+            window.location.href = `tieba-detail.html?id=${postId}`;
+        }
+
+        async function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            currentChannel = urlParams.get('channel') || 'all';
+
+            currentUser = getUserInfo();
+            renderChannelBanner();
+
+            if (!canPostInChannel() && currentUser) {
+                document.querySelector('.add-btn').style.display = 'none';
+            }
+
+            await loadPosts();
+        }
+
+        init();
+    </script>
+</body>
+</html>
